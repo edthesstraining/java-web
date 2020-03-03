@@ -15,7 +15,7 @@
 
 		<!-- Dependencies' versions -->
 		<!-- Spring Data JPA -->
-		<spring.data.jpa.version>1.7.1.RELEASE</spring.data.jpa.version>
+		<spring.data.jpa.version>1.11.23.RELEASE</spring.data.jpa.version>
 		<!-- Wildfly container -->
 		<version.wildfly.container>9.0.0.Beta2</version.wildfly.container>
 		<!-- Spring Data JPA -->
