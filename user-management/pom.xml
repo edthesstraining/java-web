@@ -1,0 +1,185 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.ed.thess.training.web</groupId>
+	<artifactId>user-management</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>User Management [user-management]</name>
+	<description>A sample user management application</description>
+	<packaging>pom</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<branch.name></branch.name>
+
+		<!-- Dependencies' versions -->
+		<!-- Spring Data JPA -->
+		<spring.data.jpa.version>1.7.1.RELEASE</spring.data.jpa.version>
+		<!-- Wildfly container -->
+		<version.wildfly.container>9.0.0.Beta2</version.wildfly.container>
+		<!-- Spring Data JPA -->
+		<spring.data.jpa.version>1.7.1.RELEASE</spring.data.jpa.version>
+		<!-- Javaee API -->
+		<javaee.version>7.0</javaee.version>
+		<!-- Oracle driver -->
+		<oracle.version>12.1.0</oracle.version>
+
+		<!-- Target and source java version -->
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+
+		<!-- Wildfly maven plugin -->
+		<version.wildfly.maven.plugin>1.0.2.Final</version.wildfly.maven.plugin>
+
+		<!-- Maven core plugins -->
+		<version.maven-ear-plugin>2.9.1</version.maven-ear-plugin>
+		<version.maven-war-plugin>2.2</version.maven-war-plugin>
+		<version.maven-compile-plugin>3.1</version.maven-compile-plugin>
+		<version.maven-jar-plugin>2.4</version.maven-jar-plugin>
+		<version.properties-maven-plugin>1.0-alpha-2</version.properties-maven-plugin>
+
+		<war.name>user-management.war</war.name>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>JBoss Repository</id>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
+		<repository>
+			<id>Maven UK Repository</id>
+			<url>http://uk.maven.org/maven2</url>
+		</repository>
+	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- POMs -->
+			<!-- Wildfly provided libraries -->
+			<dependency>
+				<groupId>org.wildfly.bom</groupId>
+				<artifactId>jboss-javaee-7.0-with-all</artifactId>
+				<version>${version.wildfly.container}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
+			<!-- Spring Data JPA -->
+			<dependency>
+				<groupId>org.springframework.data</groupId>
+				<artifactId>spring-data-jpa</artifactId>
+				<version>${spring.data.jpa.version}</version>
+			</dependency>
+
+			<!-- JAVA EE API -->
+			<dependency>
+				<groupId>javax</groupId>
+				<artifactId>javaee-api</artifactId>
+				<version>${javaee.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<!-- Oracle jdbc driver -->
+			<dependency>
+				<groupId>com.oracle</groupId>
+				<artifactId>ojdbc7</artifactId>
+				<version>${oracle.version}</version>
+			</dependency>
+
+			<!-- Application modules -->
+			<dependency>
+				<groupId>com.ed.thess.training.web</groupId>
+				<artifactId>user-management-dto</artifactId>
+				<version>${project.version}</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>com.ed.thess.training.web</groupId>
+				<artifactId>user-management-ui</artifactId>
+				<version>${project.version}</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+				<groupId>com.ed.thess.training.web</groupId>
+				<artifactId>user-management-services</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+
+		</dependencies>
+
+	</dependencyManagement>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${version.maven-compile-plugin}</version>
+					<configuration>
+						<source>${maven.compiler.source}</source>
+						<target>${maven.compiler.target}</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${version.maven-jar-plugin}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>${version.maven-war-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>properties-maven-plugin</artifactId>
+					<version>${version.properties-maven-plugin}</version>
+					<executions>
+						<execution>
+							<phase>initialize</phase>
+							<goals>
+								<goal>read-project-properties</goal>
+							</goals>
+							<configuration>
+								<files>
+									<file>${project.parent.basedir}/src/main/resources/${env}.properties</file>
+								</files>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.wildfly.plugins</groupId>
+					<artifactId>wildfly-maven-plugin</artifactId>
+					<version>${version.wildfly.maven.plugin}</version>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<env>localhost</env>
+			</properties>
+			<modules>
+				<module>user-management-dto</module>
+				<module>user-management-ui</module>
+				<module>user-management-services</module>
+			</modules>
+		</profile>
+	</profiles>
+
+	<modules>
+		<module>user-management-services</module>
+		<module>user-management-dto</module>
+		<module>user-management-ui</module>
+	</modules>
+
+</project>

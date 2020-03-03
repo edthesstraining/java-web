@@ -1,0 +1,3 @@
+/subsystem=logging/console-handler=JUST-PRINT:add(formatter="%s%E%n")
+/subsystem=logging/logger=stderr:add(use-parent-handlers="false", handlers=[JUST-PRINT])
+/subsystem=logging/logger=stdout:add(use-parent-handlers="false", handlers=[JUST-PRINT])

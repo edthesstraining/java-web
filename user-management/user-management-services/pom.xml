@@ -1,0 +1,217 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.ed.thess.training.web</groupId>
+		<artifactId>user-management</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>user-management-services</artifactId>
+	<packaging>war</packaging>
+	<name>User Management Services [user-management-services]</name>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>properties-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<!-- Spring Data JPA -->
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-jpa</artifactId>
+		</dependency>
+		<!-- JAVA EE API -->
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- Resteasy -->
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-client</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+
+		<!-- Application modules -->
+		<dependency>
+			<groupId>com.ed.thess.training.web</groupId>
+			<artifactId>user-management-dto</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.7</version>
+		</dependency>
+	</dependencies>
+
+	<profiles>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<finalName>${project.artifactId}</finalName>
+				<resources>
+					<resource>
+						<directory>src/main/resources</directory>
+						<filtering>true</filtering>
+					</resource>
+				</resources>
+				<plugins>
+					<plugin>
+						<artifactId>maven-war-plugin</artifactId>
+						<configuration>
+							<warName>${project.parent.artifactId}</warName>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.wildfly.plugins</groupId>
+						<artifactId>wildfly-maven-plugin</artifactId>
+						<configuration>
+							<skip>false</skip>
+							<filename>${project.parent.artifactId}.${project.packaging}</filename>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<!-- An optional build profile that deploys the Oracle JDBC driver on 
+				Wildfly -->
+			<!-- Should be executed before deploying the datasource -->
+			<!-- Run with: mvn wildfly:deploy-artifact -P ojdbc -->
+			<id>ojdbc</id>
+			<dependencies>
+				<!-- Oracle jdbc driver -->
+				<dependency>
+					<groupId>com.oracle</groupId>
+					<artifactId>ojdbc7</artifactId>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.wildfly.plugins</groupId>
+						<artifactId>wildfly-maven-plugin</artifactId>
+						<configuration>
+							<skip>false</skip>
+							<groupId>com.oracle</groupId>
+							<artifactId>ojdbc7</artifactId>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>deploy-artifact</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<!-- An optional build profile that deploys application's datasources 
+				on Wildfly -->
+			<!-- Should be executed after the JDBC driver deployment -->
+			<!-- Run with: mvn initialize wildfly:add-resource -P user-management-datasource -->
+			<id>user-management-datasource</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.wildfly.plugins</groupId>
+						<artifactId>wildfly-maven-plugin</artifactId>
+						<configuration>
+							<skip>false</skip>
+							<address>subsystem=datasources</address>
+							<resources>
+								<resource>
+									<address>data-source=${datasource.name}</address>
+									<properties>
+										<connection-url>${usermanagement.database.jdbc.url}</connection-url>
+										<jndi-name>${datasource.jndi.name}</jndi-name>
+										<enabled>true</enabled>
+										<user-name>${usermanagement.database.username}</user-name>
+										<password>${usermanagement.database.password}</password>
+										<driver-name>ojdbc7-${oracle.version}.jar</driver-name>
+										<jta>true</jta>
+										<min-pool-size>${usermanagement.min.pool.size}</min-pool-size>
+										<max-pool-size>${usermanagement.max.pool.size}</max-pool-size>
+										<validate-on-match>true</validate-on-match>
+										<check-valid-connection-sql>${usermanagement.check.valid.connection.sql}</check-valid-connection-sql>
+									</properties>
+								</resource>
+							</resources>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>add-resource</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>server-redeploy</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-war-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>default-war</id>
+								<phase />
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.wildfly.plugins</groupId>
+						<artifactId>wildfly-maven-plugin</artifactId>
+						<configuration>
+							<skip>false</skip>
+							<filename>${project.parent.artifactId}.${project.packaging}</filename>
+						</configuration>
+						<executions>
+							<!-- Undeploy the application -->
+							<execution>
+								<id>undeploy</id>
+								<phase>install</phase>
+								<goals>
+									<goal>undeploy</goal>
+								</goals>
+								<configuration>
+									<ignoreMissingDeployment>true</ignoreMissingDeployment>
+								</configuration>
+							</execution>
+							<!-- Deploy the application -->
+							<execution>
+								<id>deploy</id>
+								<phase>install</phase>
+								<goals>
+									<goal>deploy</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

@@ -1,0 +1,15 @@
+target
+.idea
+*.iml
+.classpath
+.project
+.settings/
+user-management-dto/.settings/
+user-management-dto/.classpath
+user-management-dto/.project
+user-management-services/.settings/
+user-management-services/.classpath
+user-management-services/.project
+user-management-ui/.settings/
+user-management-ui/.classpath
+user-management-ui/.project
